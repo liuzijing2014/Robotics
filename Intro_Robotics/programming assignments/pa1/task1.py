@@ -26,13 +26,14 @@ def myfib1(n):
     else:
         return myfib1(n-1) + myfib1(n-2)
 
-# TEST
-# mysum1 tests
-print(mysum1([1, 5, 7]))
-print(mysum1([]))
-print(mysum1([-5, 3]))
+if __name__ == "__main__":
+    # TEST
+    # mysum1 tests
+    print(mysum1([1, 5, 7]))
+    print(mysum1([]))
+    print(mysum1([-5, 3]))
 
-# myfib1 tests
-print(myfib1(3))
-print(myfib1(5))
-print(myfib1(7))
+    # myfib1 tests
+    print(myfib1(3))
+    print(myfib1(5))
+    print(myfib1(7))
