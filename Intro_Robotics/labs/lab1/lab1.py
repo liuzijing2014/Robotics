@@ -3,6 +3,8 @@ Example to move robot forward for 10 seconds
 Use "python3 run.py [--sim] example1" to execute
 """
 
+import my_robot
+MyRobot = my_robot.MyRobot
 
 class Run:
     def __init__(self, factory):
@@ -11,23 +13,17 @@ class Run:
         Args:
             factory (factory.FactoryCreate)
         """
-        self.create = factory.create_create()
-        self.time = factory.create_time_helper()
+        self.robot = MyRobot(factory)
 
     def run(self):
-        self.create.start()
-        self.create.safe()
+        self.robot.base_speed = 100
+        self.robot.start()
 
-        self.create.drive_direct(100, 100)
-        self.time.sleep(5)
-        self.create.drive_direct(100, -100)
-        self.time.sleep(5)
-        self.create.drive_direct(-100, 100)
-        self.time.sleep(5)
-        self.create.drive_direct(50, 100)
-        self.time.sleep(5)
-        self.create.drive_direct(-100, -100)
-        self.time.sleep(5)
-        self.create.drive_direct(0, 0)
+        self.robot.forward(5)
+        self.robot.turn_left(2)
+        self.robot.turn_right(2)
 
-        self.create.stop()
+        self.robot.base_speed = 500
+        self.robot.backward(5)
+
+        self.robot.stop()
