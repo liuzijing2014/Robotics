@@ -29,8 +29,9 @@ class Run:
         # task specified
         self.FKTests =[(45, -90), (90, -70), (20, -100), (45, -10), (-20, 45), (-110, 105)]
         self.IKTests =[(-0.0079, 0.8690), (-0.5359, 0.6745), (0.2476, 0.7536), (-0.5098, 0.9106), (-0.0279, 1.0398), (0.4112, 0.5608)]
-        self.rectangle = [(-0.3, 1.0), (0.3, 1.0), (0.3, 0.9), (-0.3, 0.9)]
-
+        self.rectangle = [(-0.3, 1.0), (0.3, 1.0), (0.3, 0.9), (-0.3, 0.9), (-0.3, 1.0)]
+        self.tri1 = [(-0.3, 1.0), (-0.1, 0.75), (-0.5, 0.75)]
+        self.tri2 = [(0.3, 1.0), (0.1, 0.75), (0.5, 0.75)]
 
 
     def getPosition(self, joint1, joint2):
@@ -95,7 +96,7 @@ class Run:
             self.arm.go_to(1, math.radians(entry[0]))
             self.arm.go_to(3, math.radians(entry[1]))
             x, y = self.getPosition(entry[0], entry[1])
-            print("Go to %f,%f deg, FK: [%f, 0.0, %f]" % (entry[0], entry[1], x, y))
+            print("Go to %f,%f deg, FK: [%f, 0.06, %f]" % (entry[0], entry[1], x, y))
             self.time.sleep(3)
 
         # IK
@@ -106,7 +107,19 @@ class Run:
             print("Go to [%f,%f], IK: [%f deg, %f deg]" % (entryIK[0], entryIK[1], math.degrees(angle1), math.degrees(angle2)))
             self.time.sleep(3)
 
-        # Draw rectangle
+        # Draw rectangle first attempt
+        print("First Attempt to draw the rectangle")
+        self.arm.set_color(0.0, 0.0, 1.0)
+        for point in self.rectangle:
+            angle1, angle2 = self.getAngle(point[0], point[1])
+            self.arm.go_to(1, angle1)
+            self.arm.go_to(3, angle2)
+            self.time.sleep(0.5)
+            self.arm.enable_painting()
+        self.arm.disable_painting()
+
+        # second attempt
+        print("Second Attempt to draw the rectangle")
         # Draw top side
         self.time.sleep(5)
         self.arm.set_color(0.0, 0.0, 1.0)
@@ -156,5 +169,84 @@ class Run:
             self.arm.go_to(3, angle2)
             self.time.sleep(0.3)
             y += self.paintSpeed
+        
+        self.arm.disable_painting()
+
+        #custom drawing
+        print("Custom drawing")
+        self.time.sleep(5)
+        self.arm.set_color(0.0, 0.0, 1.0)
+        t = 0.0
+        while t <= 1.0:
+            x = self.tri1[0][0] * (1.0 - t) + self.tri1[1][0] * t
+            y = self.tri1[0][1] * (1.0 - t) + self.tri1[1][1] * t
+            angle1, angle2 = self.getAngle(x, y)
+            self.arm.go_to(1, angle1)
+            self.arm.go_to(3, angle2)
+            self.time.sleep(0.3)
+            self.arm.enable_painting()
+            t += 0.05
+        
+        t = 0.0
+        while t <= 1.0:
+            x = self.tri1[1][0] * (1.0 - t) + self.tri1[2][0] * t
+            y = self.tri1[1][1] * (1.0 - t) + self.tri1[2][1] * t
+            angle1, angle2 = self.getAngle(x, y)
+            self.arm.go_to(1, angle1)
+            self.arm.go_to(3, angle2)
+            self.time.sleep(0.3)
+            self.arm.enable_painting()
+            t += 0.05
+        
+        t = 0.0
+        while t <= 1.0:
+            x = self.tri1[2][0] * (1.0 - t) + self.tri1[0][0] * t
+            y = self.tri1[2][1] * (1.0 - t) + self.tri1[0][1] * t
+            angle1, angle2 = self.getAngle(x, y)
+            self.arm.go_to(1, angle1)
+            self.arm.go_to(3, angle2)
+            self.time.sleep(0.3)
+            self.arm.enable_painting()
+            t += 0.05
+
+        self.arm.disable_painting()
+
+        self.time.sleep(2)
+        self.arm.set_color(0.0, 1.0, 0.0)
+        t = 0.0
+        while t <= 1.0:
+            x = self.tri2[0][0] * (1.0 - t) + self.tri2[1][0] * t
+            y = self.tri2[0][1] * (1.0 - t) + self.tri2[1][1] * t
+            angle1, angle2 = self.getAngle(x, y)
+            self.arm.go_to(1, angle1)
+            self.arm.go_to(3, angle2)
+            self.time.sleep(0.3)
+            self.arm.enable_painting()
+            t += 0.05
+        
+        t = 0.0
+        while t <= 1.0:
+            x = self.tri2[1][0] * (1.0 - t) + self.tri2[2][0] * t
+            y = self.tri2[1][1] * (1.0 - t) + self.tri2[2][1] * t
+            angle1, angle2 = self.getAngle(x, y)
+            self.arm.go_to(1, angle1)
+            self.arm.go_to(3, angle2)
+            self.time.sleep(0.3)
+            self.arm.enable_painting()
+            t += 0.05
+        
+        t = 0.0
+        while t <= 1.0:
+            x = self.tri2[2][0] * (1.0 - t) + self.tri2[0][0] * t
+            y = self.tri2[2][1] * (1.0 - t) + self.tri2[0][1] * t
+            angle1, angle2 = self.getAngle(x, y)
+            self.arm.go_to(1, angle1)
+            self.arm.go_to(3, angle2)
+            self.time.sleep(0.3)
+            self.arm.enable_painting()
+            t += 0.05
+
+        self.arm.disable_painting()
+        self.time.sleep(3)
 
             

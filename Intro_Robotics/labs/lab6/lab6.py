@@ -4,7 +4,6 @@ Use "run.py [--sim] lab3" to execute
 """
 
 from pyCreate2 import create2
-from pd_controller import PDController
 from pid_controller import PIDController
 
 import odometry
@@ -25,7 +24,6 @@ class Run:
         self.time = factory.create_time_helper()
         self.controller = PIDController(75, self.time.time(), 40, 15) # initialize PDcontroller
         self.controller_s = PIDController(100, self.time.time(), 50, 17)
-        #self.controller = PDController(10, self.time.time(), 4) # initialize PDController
         self.odometry = odometry.Odometry() # initialize Odometry
 
         # desired distance/ goal state

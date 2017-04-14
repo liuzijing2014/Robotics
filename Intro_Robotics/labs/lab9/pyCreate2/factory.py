@@ -66,7 +66,7 @@ class FactoryCreate:
         vrep.simxFinish(-1)  # just in case, close all opened connections
         self._clientID = vrep.simxStart(hostname, 19997, True, True, 5000, 5)  # Connect to V-REP
 
-        from visualization import VirtualCreate
+        from .visualization import VirtualCreate
         return VirtualCreate(self._clientID)
 
 
