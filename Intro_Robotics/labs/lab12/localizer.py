@@ -41,31 +41,25 @@ class Localizer:
 
     def update(self):
         v1 = [0.0, 0.0, 0.0]
-        v2 = [0.0, 0.0, 0.0]
         state = self.create.update()
         if state is not None:
             self.odometry.update(state.leftEncoderCounts, state.rightEncoderCounts)
-            v1[0] = self.odometry.x
-            v1[1] = self.odometry.y
-            v1[2] = self.odometry.theta
+            self.x = self.odometry.x
+            self.y = self.odometry.y
+            self.theta = self.odometry.theta
    
         r = self.tracker.query()
         if r is not None:
-            v2[0] = r["position"]["x"]
-            v2[1] += r["position"]["y"]
-            v2[2] += r["orientation"]["y"]
+            v1[0] = r["position"]["x"]
+            v1[1] += r["position"]["y"]
+            v1[2] += r["orientation"]["y"]
 
-        if state and r:
-            vInterp = self.interpolate(v1, v2, self.itpWeight)
+            vInterp = self.interpolate([self.x, self.y, self.theta], v1, self.itpWeight)
             self.x = vInterp[0]
             self.y = vInterp[1]
             self.theta = vInterp[2]
-        elif state:
-            self.x = v1[0]
-            self.y = v1[1]
-            self.theta = v1[2]
-        elif r:
-            self.x = v2[0]
-            self.y = v2[1]
-            self.theta = v2[2]
+
+            self.odometry.x = self.x
+            self.odometry.y = self.y
+            self.odometry.theta = self.theta
         

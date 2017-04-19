@@ -25,6 +25,7 @@ class BezierPath:
         self.color = color
         self.translate = translate
         self.scale = scale
+        self.type = "curve"
 
     def eval(self, segment, t):
         # frac, whole = math.modf(t)
@@ -118,6 +119,7 @@ class Line:
         self.u = (np.array([u[0], -u[1]]) + translate) * scale
         self.v = (np.array([v[0], -v[1]]) + translate) * scale
         self.color = color
+        self.type = "line"
 
 def parse_lines(lines):
     result = []
