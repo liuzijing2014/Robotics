@@ -15,9 +15,11 @@ class Vertex:
 
 
 class RRT:
-    def __init__(self, img):
+    def __init__(self, img, deltaX, deltaY):
         self.img = img
         self.pathFind = False
+        self.deltaX = deltaX
+        self.deltaY = deltaY
 
     def build(self, x_init, K, delta):
         self.T = []
@@ -39,8 +41,8 @@ class RRT:
     def _random_state(self):
         # width, height = self.img.size
         # self.width, self.height
-        x = np.random.uniform(0, self.img.width)
-        y = np.random.uniform(0, self.img.height)
+        x = np.random.uniform(-self.deltaX, self.img.width+self.deltaX)
+        y = np.random.uniform(-self.deltaY, self.img.height+self.deltaY)
         return np.array([x,y])
 
     def _extend(self, x, delta):

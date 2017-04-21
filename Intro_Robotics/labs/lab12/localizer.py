@@ -1,4 +1,5 @@
 import odometry
+import math
 
 class Localizer:
     def __init__(self, factory, create, time):
@@ -53,6 +54,12 @@ class Localizer:
             v1[0] = r["position"]["x"]
             v1[1] += r["position"]["y"]
             v1[2] += r["orientation"]["y"]
+
+            if v1[2] * self.theta < 0 and math.fabs(v1[2] - self.theta) > math.radians(30):
+                if v1[2] < 0:
+                    v1[2] = 2.0 * math.pi + v1[2]
+                else:
+                    v1[2] = -2.0 * math.pi + v1[2]
 
             vInterp = self.interpolate([self.x, self.y, self.theta], v1, self.itpWeight)
             self.x = vInterp[0]

@@ -60,10 +60,6 @@ class Odometry:
             self.x += delta_d * math.cos(self.theta)
             self.y += delta_d * math.sin(self.theta)
             self.theta = math.fmod(self.theta + delta_theta, 2 * math.pi)
-            if self.theta > math.pi:
-                self.theta = -1.0 * (math.pi * 2 - self.theta)
-            elif self.theta < (-1 * math.pi):
-                self.theta = math.pi * 2 + self.theta
                 
         self.last_left_encoder_counts = left_encoder_counts
         self.last_right_encoder_counts = right_encoder_counts
