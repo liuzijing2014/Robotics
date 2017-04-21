@@ -11,6 +11,25 @@ import drawer
 import rrt
 import lab_map
 
+def cmp_to_key(mycmp):
+    'Convert a cmp= function into a key= function'
+    class K:
+        def __init__(self, obj, *args):
+            self.obj = obj
+        def __lt__(self, other):
+            return mycmp(self.obj, other.obj) < 0
+        def __gt__(self, other):
+            return mycmp(self.obj, other.obj) > 0
+        def __eq__(self, other):
+            return mycmp(self.obj, other.obj) == 0
+        def __le__(self, other):
+            return mycmp(self.obj, other.obj) <= 0
+        def __ge__(self, other):
+            return mycmp(self.obj, other.obj) >= 0
+        def __ne__(self, other):
+            return mycmp(self.obj, other.obj) != 0
+    return K
+
 class Run:
     def __init__(self, factory):
         self.create = factory.create_create()
@@ -87,17 +106,17 @@ class Run:
         distance = math.sqrt((back[0] - front[0])**2 + (back[1] - front[1])**2)
         step = 1/(distance*(1/self.scale))
         t = 0.0
-        p = []
-        result = False
-        while t <= 1.0:
-            p[0] = front[0]*(1-t) + back[0]*t
-            p[1] = front[1]*(1-t) + back[1]*t
-            p = self.convertCoordinates(p)
-            if self.map.has_obstacle(p[0], p[1]):
-                result = True
-                break
-            else:
-                t += step
+        p = [0,0]
+        result = True
+        # while t <= 1.0:
+        #     p[0] = front[0]*(1-t) + back[0]*t
+        #     p[1] = front[1]*(1-t) + back[1]*t
+        #     p = self.convertCoordinates(p)
+        #     if self.map.has_obstacle(p[0], p[1]):
+        #         result = True
+        #         break
+        #     else:
+        #         t += step
         
         if result:
             front = [rightTop[0]+down[0] * self.scale, rightTop[1]+down[1] * self.scale]
@@ -124,7 +143,7 @@ class Run:
         for line in img.lines:
             self.toDraws.append(line)
 
-        self.toDraws.sort(self.colorComparator)
+        self.toDraws.sort(key=cmp_to_key(self.colorComparator))
         for line in self.toDraws:
 
             current_x = self.drawer.local.x
@@ -132,8 +151,7 @@ class Run:
 
             if line.type == "line":
                 # front, back = self.getEndPoints([line.u[0], line.u[1]], [line.v[0], line.v[1]])
-                # angle = math.atan2(back[1]-front[1], back[0]-front[0])
-
+    
                 # up, down = self.getNormal(front, back)
                 # print("front=[%f, %f], back=[%f, %f], rFront=[%f, %f], rBack=[%f, %f]" % (front[0], front[1], back[0], back[1], front[0]+up[0], front[1]+up[1], back[0]+up[0], back[1]+up[1]))
                 # front[0] += up[0] * self.scale
@@ -141,7 +159,8 @@ class Run:
                 # back[0] += up[0] * self.scale
                 # back[1] += up[1] * self.scale
                 
-                front, back = self.getEndPoints([line.u[0], line.u[1]], [line.v[0], line.v[1]])
+                front, back = self.getLineEndPoints([line.u[0], line.u[1]], [line.v[0], line.v[1]])
+                angle = math.atan2(back[1]-front[1], back[0]-front[0])
 
                 self.drawer.go_to_goal_line(front[0], front[1])
 

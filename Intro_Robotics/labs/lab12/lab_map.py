@@ -11,7 +11,7 @@ class Map:
 
     def has_obstacle(self, x, y):
         if x > self.width or x < 0.0 or y > self.height or y < 0.0:
-            return True
+            return False
         else:
             return np.array(self.img.getpixel((x, y))).sum() != 0
 
