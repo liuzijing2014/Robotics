@@ -86,7 +86,7 @@ class Drawer:
             # advance
             self.local.update()
             current_theta = self.local.theta
-            print("[%f], [%f]" % (current_theta, goal_theta))
+            #print("[%f], [%f]" % (current_theta, goal_theta))
 
             if math.fabs(current_theta - goal_theta) < self.theta_threshold:
                 self.create.drive_direct(0, 0)

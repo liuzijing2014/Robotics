@@ -80,7 +80,7 @@ class Run:
                 angle = math.atan2(back[1]-front[1], back[0]-front[0])
 
                 up, down = self.getNormal(front, back)
-                print("front=[%f, %f], rFront=[%f, %f], back=[%f, %f], rBack=[%f, %f]" % (front[0], front[1], front[0]+up[0], front[1]+up[1], back[0], back[1], back[0]+up[0], back[1]+up[1]))
+                print("front=[%f, %f], back=[%f, %f], rFront=[%f, %f], rBack=[%f, %f]" % (front[0], front[1], back[0], back[1], front[0]+up[0], front[1]+up[1], back[0]+up[0], back[1]+up[1]))
                 front[0] += up[0] * self.scale
                 front[1] += up[1] * self.scale
                 back[0] += up[0] * self.scale
