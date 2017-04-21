@@ -54,7 +54,7 @@ class RRT:
             self.T.append(Vertex(x_new))
             x_near.neighbors.append(self.T[-1])
 
-    def shortest_path(self, goal, start):
+    def shortest_path(self, goal):
         dist = dict()
         prev = dict()
         Q = []
@@ -94,6 +94,4 @@ class RRT:
             S.insert(0, u)
             u = prev[u]
         S.insert(0, u)
-        if u.state[0] == start[0] and u.state[1] == start[1]:
-            self.pathFind = True
         return S

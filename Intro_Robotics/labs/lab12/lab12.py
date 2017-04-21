@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import localizer
 import drawer
 import rrt
-import lab11_map
+import lab_map
 
 class Run:
     def __init__(self, factory):
@@ -22,11 +22,30 @@ class Run:
         self.scale = 0.2
 
         self.toDraws = []
-        self.map = lab11_map.Map("lab12_obs1.png")
+        self.map = lab_map.Map("lab12_obs1.png")
         self.rrt = rrt.RRT(self.map)
 
+    def convertCoordinates(self, point):
+        cur_x = point[0] * 100.0
+        cur_y = (1.2 - point[1]) * 100.0
+        return [cur_x, cur_y]
+
+    def findPath(self, x, y):
+        curPos = self.convertCoordinates([self.localizer.x, self.localizer.y])
+        goalPos = self.convertCoordinates([x,y])
+
+        self.rrt.build((curPos[0], curPos[1]), 2000, 5)
+        x_goal = self.rrt.nearest_neighbor((goalPos[0], goalPos[1]))
+        path = self.rrt.shortest_path(x_goal)
+        return path
+
     def colorComparator(self, left, right):
-        return left.color < right.color
+        if left.color < right.color:
+            return -1
+        elif left.color > right.color:
+            return 1
+        else:
+            return 0
 
     def getNormal(self,p1, p2):
         dx = p2[0] - p1[0]
@@ -39,25 +58,52 @@ class Run:
 
         return norm1, norm2
 
-    def getEndPoints(self, p1, p2):
+    def getLineEndPoints(self, p1, p2):
+        # the end point that is relatively left or bottom
+        leftBot = []
+        # the end point that is relateively right or top
+        rightTop = []
+
         if p1[0] == p2[0]:
             if p1[1] < p2[1]:
-                end1 = [p1[0], p1[1]]
-                end2 = [p2[0], p2[1]]
-                return end1, end2
+                leftBot = [p1[0], p1[1]]
+                rightTop = [p2[0], p2[1]]
             else:
-                end1 = [p2[0], p2[1]]
-                end2 = [p1[0], p1[1]]
-                return end1, end2
+                leftBot = [p2[0], p2[1]]
+                rightTop = [p1[0], p1[1]]
         else:
             if p1[0] < p2[0]:
-                end1 = [p1[0], p1[1]]
-                end2 = [p2[0], p2[1]]
-                return end1, end2
+                leftBot = [p1[0], p1[1]]
+                rightTop = [p2[0], p2[1]]
             else:
-                end1 = [p2[0], p2[1]]
-                end2 = [p1[0], p1[1]]
-                return end1, end2
+                leftBot = [p2[0], p2[1]]
+                rightTop = [p1[0], p1[1]]
+
+        up, down = self.getNormal(leftBot, rightTop)
+        front = [leftBot[0]+up[0] * self.scale, leftBot[1]+up[1] * self.scale]
+        back = [rightTop[0]+up[0] * self.scale, rightTop[1]+up[1] * self.scale]
+
+        # check collision
+        distance = math.sqrt((back[0] - front[0])**2 + (back[1] - front[1])**2)
+        step = 1/(distance*(1/self.scale))
+        t = 0.0
+        p = []
+        result = False
+        while t <= 1.0:
+            p[0] = front[0]*(1-t) + back[0]*t
+            p[1] = front[1]*(1-t) + back[1]*t
+            p = self.convertCoordinates(p)
+            if self.map.has_obstacle(p[0], p[1]):
+                result = True
+                break
+            else:
+                t += step
+        
+        if result:
+            front = [rightTop[0]+down[0] * self.scale, rightTop[1]+down[1] * self.scale]
+            back = [leftBot[0]+down[0] * self.scale, leftBot[1]+down[1] * self.scale]
+
+        return front, back
 
     def run(self):
         self.create.start()
@@ -71,80 +117,33 @@ class Run:
 
         # read file
         img = lab12_image.VectorImage("lab12_img1.yaml")
-        print("x", self.map.width)
-        print("y", self.map.height)
+        # print("x", self.map.width)
+        # print("y", self.map.height)
         for path in img.paths:
             self.toDraws.append(path)
         for line in img.lines:
             self.toDraws.append(line)
 
-        # self.toDraws.sort(self.colorComparator)
+        self.toDraws.sort(self.colorComparator)
         for line in self.toDraws:
 
             current_x = self.drawer.local.x
             current_y = self.drawer.local.y
 
-            print("currx", current_x)
-            print("curry", current_y)
-
             if line.type == "line":
+                # front, back = self.getEndPoints([line.u[0], line.u[1]], [line.v[0], line.v[1]])
+                # angle = math.atan2(back[1]-front[1], back[0]-front[0])
+
+                # up, down = self.getNormal(front, back)
+                # print("front=[%f, %f], back=[%f, %f], rFront=[%f, %f], rBack=[%f, %f]" % (front[0], front[1], back[0], back[1], front[0]+up[0], front[1]+up[1], back[0]+up[0], back[1]+up[1]))
+                # front[0] += up[0] * self.scale
+                # front[1] += up[1] * self.scale
+                # back[0] += up[0] * self.scale
+                # back[1] += up[1] * self.scale
+                
                 front, back = self.getEndPoints([line.u[0], line.u[1]], [line.v[0], line.v[1]])
-                angle = math.atan2(back[1]-front[1], back[0]-front[0])
 
-                up, down = self.getNormal(front, back)
-                print("front=[%f, %f], back=[%f, %f], rFront=[%f, %f], rBack=[%f, %f]" % (front[0], front[1], back[0], back[1], front[0]+up[0], front[1]+up[1], back[0]+up[0], back[1]+up[1]))
-                front[0] += up[0] * self.scale
-                front[1] += up[1] * self.scale
-                back[0] += up[0] * self.scale
-                back[1] += up[1] * self.scale
-
-                print("frontx", front[0])
-                print("fronty", front[1])
-
-                self.rrt.build((120, 120), 2000, 5)
-                x_goal = self.rrt.nearest_neighbor((0, 0))
-                path = self.rrt.shortest_path(x_goal, (120, 120))
-
-                for v in self.rrt.T:
-                    for u in v.neighbors:
-                        self.map.draw_line((v.state[0], v.state[1]), (u.state[0], u.state[1]), (0,0,0))
-                for idx in range(0, len(path)-1):
-                    self.map.draw_line((path[idx].state[0], path[idx].state[1]), (path[idx+1].state[0], path[idx+1].state[1]), (0,255,0))
-
-                self.map.save("lab11_rrt.png")
-
-                # self.rrt.build((current_x * 100, current_y * 100), 500, 1)
-                # x_goal = self.rrt.nearest_neighbor((front[0] * 100, front[1] * 100))
-                # path = self.rrt.shortest_path(x_goal, (current_x * 100, current_y * 100))
-
-                # for v in self.rrt.T:
-                #     for u in v.neighbors:
-                #         self.map.draw_line((v.state[0], v.state[1]), (u.state[0], u.state[1]), (0,0,0))
-                # for idx in range(0, len(path)-1):
-                #     self.map.draw_line((path[idx].state[0], path[idx].state[1]), (path[idx+1].state[0], path[idx+1].state[1]), (0,255,0))
-
-                # self.map.save("lab11_rrt.png")
-
-                # if self.rrt.pathFind is False:
-                #     front[0] -= up[0] * self.scale
-                #     front[1] -= up[1] * self.scale
-                #     back[0] -= up[0] * self.scale
-                #     back[1] -= up[1] * self.scale
-                #     front[0] += down[0] * self.scale
-                #     front[1] += down[1] * self.scale
-                #     back[0] += down[0] * self.scale
-                #     back[1] += down[1] * self.scale
-
-                # x_goal = self.rrt.nearest_neighbor((front[0] * 100, front[1] * 100))
-                # path = self.rrt.shortest_path(x_goal, (current_x * 100, current_y * 100))
                 self.drawer.go_to_goal_line(front[0], front[1])
-                # for p in path:
-                #     goal_x = p.state[0] / 100.0
-                #     goal_y = p.state[1] / 100.0
-                #     self.drawer.go_to_goal_line(goal_x, goal_y)
-
-                # print("afterx", self.drawer.local.x)
-                # print("aftery", self.drawer.local.y)
 
                 self.drawer.go_to_theta(angle)
                 if line.color == "black":
